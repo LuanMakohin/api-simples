@@ -1,0 +1,16 @@
+services:
+    db:
+        image: postgres:17
+        container_name: simples
+        restart: always
+        environment:
+            POSTGRES_USER: simples
+            POSTGRES_PASSWORD: simples
+            POSTGRES_DB: simples
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+
+volumes:
+    pgdata:
