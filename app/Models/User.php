@@ -2,13 +2,26 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
+/**
+ * Class User
+ *
+ * @property string $id User's unique identifier
+ * @property string $name User's full name
+ * @property string $email User's email address
+ * @property string $password Hashed password
+ * @property string $document Document number (CPF/CNPJ)
+ * @property string $user_type Type of user (e.g., 'customer', 'merchant')
+ * @property float $balance Current user balance
+ * @property Carbon|null $email_verified_at Email verification timestamp
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -49,5 +62,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+
+    /**
+     * Transactions where the user is the payer.
+     */
+    public function sentTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'user_payer_id');
+    }
+
+    /**
+     * Transactions where the user is the payee.
+     */
+    public function receivedTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'user_payee_id');
     }
 }
