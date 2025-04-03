@@ -16,8 +16,7 @@ return new class extends Migration
             $table->foreignId('user_payer_id')->index()->constrained('users')->onDelete('cascade');
             $table->foreignId('user_payee_id')->index()->constrained('users')->onDelete('cascade');
             $table->decimal('value', 15, 2);
-            $table->enum('transaction_type', ['deposit', 'transfer']);
-            $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
+            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
             $table->timestamps();
             $table->softDeletes();
         });

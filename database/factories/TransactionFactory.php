@@ -27,8 +27,7 @@ class TransactionFactory extends Factory
             'user_payer_id' => $payer->id,
             'user_payee_id' => $payee->id,
             'value' => fake()->randomFloat(2, 1, 1000),
-            'transaction_type' => fake()->randomElement(['deposit', 'transfer']),
-            'status' => fake()->randomElement(['pending', 'success', 'failed']),
+            'status' => fake()->randomElement(['pending', 'completed', 'failed']),
         ];
     }
 }

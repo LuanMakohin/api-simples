@@ -36,7 +36,6 @@ class Transaction extends Model
         'user_payer_id',
         'user_payee_id',
         'value',
-        'transaction_type',
         'status',
     ];
 
