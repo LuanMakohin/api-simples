@@ -15,16 +15,14 @@ it('creates a transaction successfully', function () {
         'user_payer_id' => $payer->id,
         'user_payee_id' => $payee->id,
         'value' => 100.50,
-        'transaction_type' => 'deposit',
-        'status' => 'success',
+        'status' => 'completed',
     ]);
 
     expect($transaction)->toBeInstanceOf(Transaction::class)
         ->and($transaction->user_payer_id)->toBe($payer->id)
         ->and($transaction->user_payee_id)->toBe($payee->id)
         ->and($transaction->value)->toBe(100.50)
-        ->and($transaction->transaction_type)->toBe('deposit')
-        ->and($transaction->status)->toBe('success');
+        ->and($transaction->status)->toBe('completed');
 });
 
 it('ensures transaction ID is a valid UUID', function () {
