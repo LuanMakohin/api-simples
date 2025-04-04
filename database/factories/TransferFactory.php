@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\Transaction;
+use App\Models\Transfer;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Transaction>
+ * @extends Factory<Transfer>
  */
-class TransactionFactory extends Factory
+class TransferFactory extends Factory
 {
-    protected $model = Transaction::class;
+    protected $model = Transfer::class;
 
     /**
      * Define the model's default state.

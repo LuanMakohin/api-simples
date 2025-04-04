@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\TransactionFactory;
+use Database\Factories\TransferFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,17 +11,17 @@ use Ramsey\Uuid\Guid\Guid;
 
 
 /**
- * Class Transaction
- * Represents a transaction between a payer and a payee.
+ * Class Transfer
+ * Represents a transfer between a payer and a payee.
  *
  * @property int $user_payer_id ID of the user who made the payment
  * @property int $user_payee_id ID of the user who received the payment
- * @property float $value Transaction amount (stored as decimal(10,2) in the database)
- * @property string $status Transaction status
+ * @property float $value Transfer amount (stored as decimal(10,2) in the database)
+ * @property string $status Transfer status
  */
-class Transaction extends Model
+class Transfer extends Model
 {
-    /** @use HasFactory<TransactionFactory> */
+    /** @use HasFactory<TransferFactory> */
     use HasFactory, SoftDeletes;
     protected $keyType = 'string';
     public $incrementing = false;
@@ -41,8 +41,8 @@ class Transaction extends Model
 
     protected static function booted(): void
     {
-        static::creating(function ($transaction) {
-            $transaction->id = (string) Guid::uuid4();
+        static::creating(function ($transfer) {
+            $transfer->id = (string) Guid::uuid4();
         });
     }
 

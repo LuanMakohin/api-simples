@@ -66,18 +66,18 @@ class User extends Authenticatable
 
 
     /**
-     * Transactions where the user is the payer.
+     * Transfers where the user is the payer.
      */
-    public function sentTransactions(): HasMany
+    public function sentTransfers(): HasMany
     {
-        return $this->hasMany(Transaction::class, 'user_payer_id');
+        return $this->hasMany(Transfer::class, 'user_payer_id');
     }
 
     /**
-     * Transactions where the user is the payee.
+     * Transfers where the user is the payee.
      */
-    public function receivedTransactions(): HasMany
+    public function receivedTransfers(): HasMany
     {
-        return $this->hasMany(Transaction::class, 'user_payee_id');
+        return $this->hasMany(Transfer::class, 'user_payee_id');
     }
 }
