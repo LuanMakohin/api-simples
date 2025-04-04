@@ -1,1 +1,13 @@
-//TODO Service de deposito para o usuario
+<?php
+
+namespace App\Services;
+
+
+
+use App\Interfaces\DepositServiceInterface;
+
+
+class DepositService implements DepositServiceInterface
+{
+
+}

@@ -5,7 +5,7 @@ namespace App\Exceptions;
 use Exception;
 
 /**
- * Exception thrown when an account has insufficient balance to complete a transaction.
+ * Exception thrown when an account has insufficient balance to complete a transfer.
  */
 class InsufficientBalanceException extends Exception
 {

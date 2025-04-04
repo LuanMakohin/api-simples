@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Models\Transaction;
+use App\Models\Transfer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -24,17 +24,17 @@ it('creates a user successfully', function () {
         ->and($user->balance)->toBe(500.00);
 });
 
-it('checks user transactions relationships', function () {
+it('checks user transfers relationships', function () {
     $payer = User::factory()->create();
     $payee = User::factory()->create();
 
-    $transaction = Transaction::factory()->create([
+    $transfer = Transfer::factory()->create([
         'user_payer_id' => $payer->id,
         'user_payee_id' => $payee->id,
     ]);
 
-    expect($payer->sentTransactions)->toHaveCount(1)
-        ->and($payee->receivedTransactions)->toHaveCount(1);
+    expect($payer->sentTransfers)->toHaveCount(1)
+        ->and($payee->receivedTransfers)->toHaveCount(1);
 });
 
 it('hides password and remember_token from serialization', function () {
