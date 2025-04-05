@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,14 +14,19 @@ use Illuminate\Support\Carbon;
 /**
  * Class User
  *
- * @property string $id User's unique identifier
- * @property string $name User's full name
- * @property string $email User's email address
- * @property string $password Hashed password
- * @property string $document Document number (CPF/CNPJ)
- * @property string $user_type Type of user (e.g., 'customer', 'merchant')
- * @property float $balance Current user balance
- * @property Carbon|null $email_verified_at Email verification timestamp
+ * Represents a user within the system, including their personal details and balance information.
+ *
+ * @property string $id Unique identifier for the user.
+ * @property string $name User's full name.
+ * @property string $email User's email address.
+ * @property string $password Hashed password of the user.
+ * @property string $document Document number (e.g., CPF or CNPJ).
+ * @property string $user_type Type of user (e.g., 'customer', 'merchant').
+ * @property float $balance Current balance of the user.
+ * @property Carbon|null $email_verified_at Timestamp for email verification.
+ *
+ * @property-read Collection|Transfer[] $sentTransfers Transfers initiated by the user (payer).
+ * @property-read Collection|Transfer[] $receivedTransfers Transfers received by the user (payee).
  */
 class User extends Authenticatable
 {
@@ -38,7 +44,7 @@ class User extends Authenticatable
         'password',
         'document',
         'user_type',
-        'balance'
+        'balance',
     ];
 
     /**
@@ -64,20 +70,33 @@ class User extends Authenticatable
         ];
     }
 
-
     /**
-     * Transfers where the user is the payer.
+     * Get all the transfers where the user is the payer.
+     *
+     * @return HasMany
      */
     public function sentTransfers(): HasMany
     {
-        return $this->hasMany(Transfer::class, 'user_payer_id');
+        return $this->hasMany(Transfer::class, 'payer');
     }
 
     /**
-     * Transfers where the user is the payee.
+     * Get all the transfers where the user is the payee.
+     *
+     * @return HasMany
      */
     public function receivedTransfers(): HasMany
     {
-        return $this->hasMany(Transfer::class, 'user_payee_id');
+        return $this->hasMany(Transfer::class, 'payee');
+    }
+
+    /**
+     * Get all the deposits where the user is the payee.
+     *
+     * @return HasMany
+     */
+    public function receivedDeposits(): HasMany
+    {
+        return $this->hasMany(Deposit::class, 'user');
     }
 }

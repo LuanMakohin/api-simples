@@ -2,19 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Exceptions\TransferNotificationFailedException;
 use App\Exceptions\UnauthorizedTransferException;
 use App\Models\Transfer;
 use App\Models\User;
 use App\Services\AuthorizationService;
-use App\Services\NotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Job responsible for processing a financial transfer between users.
@@ -52,23 +49,32 @@ class ProcessTransfer implements ShouldQueue
      * 3. Sends a notification about the transfer result.
      *
      * @param AuthorizationService $authorizationService The service responsible for verifying authorization.
-     * @param NotificationService $notificationService The service responsible for sending notifications.
      * @return void
      * @throws UnauthorizedTransferException If the transfer is not authorized.
      */
-    public function handle(AuthorizationService $authorizationService, NotificationService $notificationService): void
+    public function handle(AuthorizationService $authorizationService): void
     {
         $this->authorizeTransfer($authorizationService);
 
         $this->processTransfer();
 
-        $this->sendNotification($notificationService);
+        $this->sendNotification();
     }
+
+    /*
+     * Return the transfer.
+     *
+     * @return Transfer
+    */
+    public function getTransfer(): Transfer
+    {
+        return $this->transfer;
+    }
+
 
     /**
      * Authorize the transfer using the AuthorizationService.
      *
-     * Throws an UnauthorizedTransferException if the transfer is not authorized.
      *
      * @param AuthorizationService $authorizationService The service used to check transfer authorization.
      * @return void
@@ -91,10 +97,10 @@ class ProcessTransfer implements ShouldQueue
      */
     protected function processTransfer(): void
     {
-        DB::transfer(function () {
+        DB::transaction(function () {
             $transfer = $this->transfer;
-            $sender = User::findOrFail($transfer->user_payer_id);
-            $receiver = User::findOrFail($transfer->user_payee_id);
+            $sender = User::findOrFail($transfer->payer);
+            $receiver = User::findOrFail($transfer->payee);
 
             if ($sender->balance < $transfer->value) {
                 $transfer->update(['status' => 'failed']);
@@ -104,7 +110,7 @@ class ProcessTransfer implements ShouldQueue
             $sender->decrement('balance', $transfer->value);
             $receiver->increment('balance', $transfer->value);
 
-            $transfer->update(['status' => 'success']);
+            $transfer->update(['status' => 'completed']);
         });
     }
 
@@ -114,19 +120,10 @@ class ProcessTransfer implements ShouldQueue
      * This method attempts to send a notification regarding the transfer status.
      * If notification sending fails, it logs the error.
      *
-     * @param NotificationService $notificationService The service used to send notifications.
      * @return void
      */
-    protected function sendNotification(NotificationService $notificationService): void
+    protected function sendNotification(): void
     {
-        //TODO transformar isso em job para ter um fallback caso o servico esteja indisponivel e a notificacao possa ser reenviada
-        try {
-            $notificationService->send([
-                'transfer_id' => $this->transfer->id,
-                'status' => $this->transfer->status,
-            ]);
-        } catch (TransferNotificationFailedException $e) {
-            Log::error('Failed to send notification for transfer ' . $this->transfer->id . ': ' . $e->getMessage());
-        }
+        SendTransferNotification::dispatch($this->transfer)->onQueue('notifications');
     }
 }

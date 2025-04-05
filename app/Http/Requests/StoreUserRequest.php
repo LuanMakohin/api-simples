@@ -25,7 +25,12 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'document' => 'required|string|unique:users,document|regex:/^\d{11}|\d{14}$/',
+            'document' => [
+                'sometimes',
+                'string',
+                "unique:users,document",
+                'regex:/^(\d{11}|\d{14})$/',
+            ],
             'user_type' => 'required|in:PF,PJ',
             'balance' => 'required|numeric|min:0',
         ];

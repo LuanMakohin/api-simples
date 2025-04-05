@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transfers', function (Blueprint $table) {
+        Schema::create('deposits', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('payer')->index()->constrained('users')->onDelete('cascade');
-            $table->foreignId('payee')->index()->constrained('users')->onDelete('cascade');
+            $table->foreignId('user')->index()->constrained('users')->onDelete('cascade');
             $table->decimal('value', 15, 2);
             $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
             $table->timestamps();
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transfers');
+        Schema::dropIfExists('deposits');
     }
 };
