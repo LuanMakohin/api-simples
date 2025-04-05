@@ -5,7 +5,7 @@ Este é um projeto de API simples utilizando Laravel, Docker e Docker Compose.\n
  - [Docker Compose](https://docs.docker.com/compose/)
 ## Como rodar o projeto\n\n
  1. Clone este repositório:
-     - ```bash\ngit clone https://github.com/LuanMakohin/api-simples.git```
+     - ```git clone https://github.com/LuanMakohin/api-simples.git```
      - ```cd api-simples```
  2. Renomeie o arquivo `.env.example` para `.env`:
      ### Windows (CMD)
