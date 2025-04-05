@@ -15,10 +15,16 @@ Para rodar este projeto, você precisa ter os seguintes softwares instalados na 
    - ```git clone https://github.com/LuanMakohin/api-simples.git```
 
    - ```cd api-simples```
+   - 
+2. Renomear arquivo:
+   - Renomar o arquivo ```.env.example``` para ```.env```
+   - Windows
+     ``` copy .env.example .env ```
+   - Linux
+   - ``` cp .env.example .env ```
 
-
-1. Suba os containers com o Docker Compose:
+4. Suba os containers com o Docker Compose:
    - ```docker-compose up -d```
     
-3. Acesse a aplicação:
+5. Acesse a aplicação:
   - http://localhost:8000/docs/api
