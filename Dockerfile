@@ -19,11 +19,8 @@ COPY . /var/www/html
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
-
-EXPOSE 80
-
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["apache2-foreground"]
