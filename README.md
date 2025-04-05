@@ -4,7 +4,7 @@ Este é um projeto de API simples utilizando Laravel, Docker e Docker Compose.
 Para rodar este projeto, você precisa ter os seguintes softwares instalados na sua máquina:
  - [Docker](https://www.docker.com/)
  - [Docker Compose](https://docs.docker.com/compose/)
-## Como rodar o projeto\n\n
+## Como rodar o projeto
  1. Clone este repositório:
      - ```git clone https://github.com/LuanMakohin/api-simples.git```
      - ```cd api-simples```
