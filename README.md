@@ -13,8 +13,8 @@ Este é um projeto de API simples utilizando Laravel, Docker e Docker Compose.\n
     ### Linux / macOS
     ```cp .env.example .env```
 
-3. Suba os containers com o Docker Compose:\n\n
-    ```docker-compose up -d```
+3. Suba os containers com o Docker Compose:
+    - ```docker-compose up -d```
  4. Acesse a aplicação:
     - Abra o navegador e vá para:
     - http://localhost:8000/docs/api
