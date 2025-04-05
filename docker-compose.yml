@@ -8,6 +8,7 @@ services:
             - "8000:80"
         volumes:
             - .:/var/www/html
+            - vendor-volume:/var/www/html/vendor
             - ./docker/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
         depends_on:
             - pgsql
@@ -39,6 +40,7 @@ services:
         command: ["php", "artisan", "schedule:work"]
         volumes:
             - .:/var/www/html
+            - vendor-volume:/var/www/html/vendor
         depends_on:
             - api
             - pgsql
@@ -52,6 +54,7 @@ services:
         command: ["php", "artisan", "queue:work", "redis", "--queue=transfers", "--tries=3"]
         volumes:
             - .:/var/www/html
+            - vendor-volume:/var/www/html/vendor
         depends_on:
             - redis
             - pgsql
@@ -64,6 +67,7 @@ services:
         command: ["php", "artisan", "queue:work", "redis", "--queue=deposits", "--tries=3"]
         volumes:
             - .:/var/www/html
+            - vendor-volume:/var/www/html/vendor
         depends_on:
             - redis
             - pgsql
@@ -76,8 +80,11 @@ services:
         command: ["php", "artisan", "queue:work", "redis", "--queue=notifications", "--tries=3"]
         volumes:
             - .:/var/www/html
+            - vendor-volume:/var/www/html/vendor
         depends_on:
             - redis
             - pgsql
+
 volumes:
     pgdata:
+    vendor-volume:
