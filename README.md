@@ -18,7 +18,7 @@ Para rodar este projeto, você precisa ter os seguintes softwares instalados na 
 
 
 1. Suba os containers com o Docker Compose:
-    -```docker-compose up -d```
+   - ```docker-compose up -d```
     
 3. Acesse a aplicação:
   - http://localhost:8000/docs/api
