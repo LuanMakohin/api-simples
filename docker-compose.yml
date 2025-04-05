@@ -1,16 +1,83 @@
 services:
-    db:
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-api
+        ports:
+            - "8000:80"
+        volumes:
+            - .:/var/www/html
+            - ./docker/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
+        depends_on:
+            - pgsql
+            - redis
+
+    pgsql:
         image: postgres:17
-        container_name: simples
-        restart: always
+        container_name: simples-pgsql
         environment:
+            POSTGRES_DB: simples
             POSTGRES_USER: simples
             POSTGRES_PASSWORD: simples
-            POSTGRES_DB: simples
+        ports:
+            - "5432:5432"
         volumes:
             - pgdata:/var/lib/postgresql/data
-        ports:
-            - "543:5432"
 
+    redis:
+        image: redis:alpine
+        container_name: simples-redis
+        ports:
+            - "6379:6379"
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-scheduler
+        command: ["php", "artisan", "schedule:work"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - api
+            - pgsql
+            - redis
+
+    queue-transfers:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-queue-transfers
+        command: ["php", "artisan", "queue:work", "redis", "--queue=transfers", "--tries=3"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - pgsql
+
+    queue-deposits:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-queue-deposits
+        command: ["php", "artisan", "queue:work", "redis", "--queue=deposits", "--tries=3"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - pgsql
+
+    queue-notifications:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-queue-notifications
+        command: ["php", "artisan", "queue:work", "redis", "--queue=notifications", "--tries=3"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - pgsql
 volumes:
     pgdata:

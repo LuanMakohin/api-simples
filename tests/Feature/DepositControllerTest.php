@@ -43,7 +43,7 @@ it('creates a deposit successfully', function () {
         ], 204),
     ]);
 
-    $user = User::factory()->create();
+    $user = User::factory()->create(['user_type' => 'PF']);
 
     $payload = [
         'user' => $user->id,
@@ -93,7 +93,7 @@ it('returns 404 if deposit not found', function () {
 });
 
 it('updates a deposit successfully', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create(['user_type' => 'PF']);
 
     $deposit = Deposit::factory()->create([
         'user' => $user->id,
@@ -126,7 +126,7 @@ it('returns 400 for invalid UUID in update', function () {
 
 it('returns 404 if deposit not found during update', function () {
     $uuid = Str::uuid();
-    $user = User::factory()->create();
+    $user = User::factory()->create(['user_type' => 'PF']);
 
 
     $response = $this->putJson("/api/deposit/{$uuid}", [
@@ -136,7 +136,7 @@ it('returns 404 if deposit not found during update', function () {
     ]);
 
     $response->assertNotFound()
-        ->assertJson(['error' => 'Deposit not found']);
+        ->assertJson(['error' => 'Deposit or receiver not found']);
 });
 
 it('deletes a deposit successfully', function () {

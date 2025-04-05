@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Exceptions\UnauthorizedPayerException;
 use App\Interfaces\DepositServiceInterface;
 use App\Jobs\ProcessDeposit;
 use App\Models\Deposit;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -66,9 +68,15 @@ class DepositService implements DepositServiceInterface
      *
      * @param array $data The validated data for the deposit.
      * @return Deposit The newly created deposit record.
+     * @throws UnauthorizedPayerException
      */
     public function create(array $data): Deposit
     {
+        $user = User::findOrFail($data['user']);
+        if ($user->user_type === 'PJ') {
+            throw new UnauthorizedPayerException();
+        }
+
         $deposit = Deposit::create($data);
 
         ProcessDeposit::dispatch($deposit)->onQueue('deposits');
@@ -84,9 +92,15 @@ class DepositService implements DepositServiceInterface
      * @param array $data The validated data for updating the deposit.
      * @param string $id The ID of the deposit to update.
      * @return Deposit The updated deposit record.
+     * @throws UnauthorizedPayerException
      */
     public function update(array $data, string $id): Deposit
     {
+        $user = User::findOrFail($data['user']);
+        if ($user->user_type === 'PJ') {
+            throw new UnauthorizedPayerException();
+        }
+
         $deposit = Deposit::findOrFail($id);
 
         $deposit->update($data);

@@ -24,7 +24,7 @@ class SendTransferNotification implements ShouldQueue
      *
      * @var Transfer
      */
-    protected $transfer;
+    protected Transfer $transfer;
 
     /**
      * Create a new job instance.
@@ -47,13 +47,41 @@ class SendTransferNotification implements ShouldQueue
      */
     public function handle(TransferNotificationService $notificationService): void
     {
+        Log::info('[TransferNotificationJob] Sending notification for transfer', [
+            'transfer_id' => $this->transfer->id,
+            'status' => $this->transfer->status,
+        ]);
+
         try {
             $notificationService->send([
                 'transfer' => $this->transfer->id,
                 'status' => $this->transfer->status,
             ]);
+
+            Log::info('[TransferNotificationJob] Notification sent successfully', [
+                'transfer_id' => $this->transfer->id,
+            ]);
         } catch (TransferNotificationFailedException $e) {
-            Log::error('Failed to send notification for transfer ' . $this->transfer->id . ': ' . $e->getMessage());
+            Log::error('[TransferNotificationJob] Failed to send notification', [
+                'transfer_id' => $this->transfer->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @param \Throwable $exception
+     * @return void
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::critical('[TransferNotificationJob] Job failed with unhandled exception', [
+            'transfer_id' => $this->transfer->id,
+            'error' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+        ]);
     }
 }

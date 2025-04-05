@@ -12,13 +12,14 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Job responsible for processing a financial deposit for a user.
  *
  * This job handles the entire deposit process, including:
  * - Verifying authorization
- * - Crediting user balance
+ * - Crediting the user's balance
  * - Sending a notification after the deposit is processed
  */
 class ProcessDeposit implements ShouldQueue
@@ -56,19 +57,53 @@ class ProcessDeposit implements ShouldQueue
      */
     public function handle(AuthorizationService $authorizationService): void
     {
-        $this->authorizeDeposit($authorizationService);
-        $this->processDeposit();
-        $this->sendNotification();
-    }
+        Log::info('[DepositJob] Starting deposit processing', [
+            'deposit_id' => $this->deposit->id,
+        ]);
 
-    /*
-     * Return the deposit.
+        try {
+            $this->authorizeDeposit($authorizationService);
+            $this->processDeposit();
+            $this->sendNotification();
+
+            Log::info('[DepositJob] Deposit successfully processed', [
+                'deposit_id' => $this->deposit->id,
+            ]);
+        } catch (UnauthorizedTransferException $e) {
+            Log::warning('[DepositJob] Deposit authorization failed', [
+                'deposit_id' => $this->deposit->id,
+            ]);
+
+            $this->deposit->update(['status' => 'failed']);
+
+            throw $e;
+        }
+    }
+    /**
+     * Get the deposit instance associated with the job.
      *
      * @return Deposit
      */
     public function getDeposit(): Deposit
     {
         return $this->deposit;
+    }
+
+    /**
+     * Handle job failure.
+     *
+     * This method is automatically called when the job fails.
+     *
+     * @param \Throwable $exception The exception that caused the failure.
+     * @return void
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('[DepositJob] Failed to process deposit', [
+            'deposit_id' => $this->deposit->id,
+            'error' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+        ]);
     }
 
     /**
@@ -80,9 +115,20 @@ class ProcessDeposit implements ShouldQueue
      */
     protected function authorizeDeposit(AuthorizationService $authorizationService): void
     {
+        Log::info('[DepositJob] Checking deposit authorization', [
+            'deposit_id' => $this->deposit->id,
+        ]);
+
         if (!$authorizationService->authorize()) {
+            Log::warning('[DepositJob] Deposit authorization denied', [
+                'deposit_id' => $this->deposit->id,
+            ]);
             throw new UnauthorizedTransferException();
         }
+
+        Log::info('[DepositJob] Deposit authorized', [
+            'deposit_id' => $this->deposit->id,
+        ]);
     }
 
     /**
@@ -94,13 +140,21 @@ class ProcessDeposit implements ShouldQueue
      */
     protected function processDeposit(): void
     {
+        Log::info('[DepositJob] Processing deposit', [
+            'deposit_id' => $this->deposit->id,
+            'value' => $this->deposit->value,
+        ]);
+
         DB::transaction(function () {
             $deposit = $this->deposit;
 
             $deposit->receiver->increment('balance', $deposit->value);
-
             $deposit->update(['status' => 'completed']);
         });
+
+        Log::info('[DepositJob] Deposit completed and balance updated', [
+            'deposit_id' => $this->deposit->id,
+        ]);
     }
 
     /**
@@ -112,6 +166,10 @@ class ProcessDeposit implements ShouldQueue
      */
     protected function sendNotification(): void
     {
+        Log::info('[DepositJob] Sending deposit notification', [
+            'deposit_id' => $this->deposit->id,
+        ]);
+
         SendDepositNotification::dispatch($this->deposit)->onQueue('notifications');
     }
 }

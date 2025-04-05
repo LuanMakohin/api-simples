@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\UnauthorizedPayerException;
 use App\Http\Requests\StoreDepositRequest;
 use App\Http\Requests\UpdateDepositRequest;
 use App\Services\DepositService;
@@ -80,9 +81,19 @@ class DepositController extends Controller
      */
     public function store(StoreDepositRequest $request): JsonResponse
     {
-        $deposit = $this->depositService->create($request->all());
+        try {
+            $deposit = $this->depositService->create($request->all());
+            return response()->json($deposit, Response::HTTP_CREATED);
+        }
+        catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Receiver not found'], Response::HTTP_NOT_FOUND);
+        }
+        catch (UnauthorizedPayerException $e) {
+            return response()->json([
+                'error' => 'Receiver is not authorized to receive deposits.',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
-        return response()->json($deposit, Response::HTTP_CREATED);
     }
 
     /**
@@ -151,7 +162,12 @@ class DepositController extends Controller
             $deposit = $this->depositService->update($request->all(), $id);
             return response()->json($deposit, Response::HTTP_OK);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Deposit not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'Deposit or receiver not found'], Response::HTTP_NOT_FOUND);
+        }
+        catch (UnauthorizedPayerException $e) {
+            return response()->json([
+                'error' => 'Receiver is not authorized to receive deposits.',
+            ], Response::HTTP_FORBIDDEN);
         }
     }
 
