@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class UpdateUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, string>
+     * @return array<string, string|array>
      */
     public function rules(): array
     {
@@ -31,7 +32,7 @@ class UpdateUserRequest extends FormRequest
                 'sometimes',
                 'string',
                 "unique:users,document,{$id}",
-                'regex:/^(\d{11}|\d{14})$/',
+                'regex:/^\d+$/',
             ],
             'user_type' => 'sometimes|in:PF,PJ',
             'balance' => 'sometimes|numeric|min:0',
@@ -57,12 +58,34 @@ class UpdateUserRequest extends FormRequest
 
             'document.string' => 'The document must be a valid string.',
             'document.unique' => 'The document is already registered.',
-            'document.regex' => 'The document must be a valid CPF (11 digits) or CNPJ (14 digits) without dots, dashes, or spaces.',
+            'document.regex' => 'The document must contain only digits.',
 
             'user_type.in' => 'The user type must be either PF (individual) or PJ (business).',
 
             'balance.numeric' => 'The balance must be a valid number.',
             'balance.min' => 'The balance must be at least 0.',
         ];
+    }
+
+    /**
+     * Apply additional conditional validation after base validation.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $data = $this->all();
+
+            if (isset($data['user_type'], $data['document'])) {
+                $length = strlen($data['document']);
+
+                if ($data['user_type'] === 'PF' && $length !== 11) {
+                    $validator->errors()->add('document', 'The document must be 11 digits for individuals (PF).');
+                }
+
+                if ($data['user_type'] === 'PJ' && $length !== 14) {
+                    $validator->errors()->add('document', 'The document must be 14 digits for businesses (PJ).');
+                }
+            }
+        });
     }
 }

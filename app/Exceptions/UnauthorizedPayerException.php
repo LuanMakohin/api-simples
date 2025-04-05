@@ -14,6 +14,6 @@ class UnauthorizedPayerException extends Exception
      */
     public function __construct()
     {
-        parent::__construct('Merchants are not allowed to make transfers.');
+        parent::__construct('Merchants are not allowed to make transfers or receive deposits.');
     }
 }

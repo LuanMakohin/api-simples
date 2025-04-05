@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     Queue::fake();
     $this->service = new DepositService();
-    $this->user = User::factory()->create();
+    $this->user = User::factory()->create(['user_type' => 'PF']);
 });
 
 it('creates a deposit and dispatches job', function () {

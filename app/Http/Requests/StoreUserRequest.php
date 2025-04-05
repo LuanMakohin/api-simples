@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreUserRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class StoreUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, string>
+     * @return array<string, string|array>
      */
     public function rules(): array
     {
@@ -26,10 +27,10 @@ class StoreUserRequest extends FormRequest
             'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:8|confirmed',
             'document' => [
-                'sometimes',
+                'required',
                 'string',
-                "unique:users,document",
-                'regex:/^(\d{11}|\d{14})$/',
+                'unique:users,document',
+                'regex:/^\d+$/',
             ],
             'user_type' => 'required|in:PF,PJ',
             'balance' => 'required|numeric|min:0',
@@ -59,7 +60,7 @@ class StoreUserRequest extends FormRequest
             'document.required' => 'The document is required.',
             'document.string' => 'The document must be a valid string.',
             'document.unique' => 'The document is already registered.',
-            'document.regex' => 'The document must be a valid CPF (11 digits) or CNPJ (14 digits) without dots, dashes, or spaces.',
+            'document.regex' => 'The document must contain only digits.',
 
             'user_type.required' => 'The user type is required.',
             'user_type.in' => 'The user type must be either PF (individual) or PJ (business).',
@@ -68,5 +69,27 @@ class StoreUserRequest extends FormRequest
             'balance.numeric' => 'The balance must be a valid number.',
             'balance.min' => 'The balance must be at least 0.',
         ];
+    }
+
+    /**
+     * Apply additional conditional validation after base validation.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $data = $this->all();
+
+            if (isset($data['user_type'], $data['document'])) {
+                $length = strlen($data['document']);
+
+                if ($data['user_type'] === 'PF' && $length !== 11) {
+                    $validator->errors()->add('document', 'The document must be 11 digits for individuals (PF).');
+                }
+
+                if ($data['user_type'] === 'PJ' && $length !== 14) {
+                    $validator->errors()->add('document', 'The document must be 14 digits for businesses (PJ).');
+                }
+            }
+        });
     }
 }

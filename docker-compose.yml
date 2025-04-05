@@ -1,16 +1,60 @@
 services:
-    db:
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-api
+        ports:
+            - "8000:80"
+        volumes:
+            - .:/var/www/html
+            - ./docker/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
+        depends_on:
+            - pgsql
+            - redis
+
+    pgsql:
         image: postgres:17
-        container_name: simples
-        restart: always
+        container_name: simples-pgsql
         environment:
+            POSTGRES_DB: simples
             POSTGRES_USER: simples
             POSTGRES_PASSWORD: simples
-            POSTGRES_DB: simples
+        ports:
+            - "5432:5432"
         volumes:
             - pgdata:/var/lib/postgresql/data
+
+    redis:
+        image: redis:alpine
+        container_name: simples-redis
         ports:
-            - "543:5432"
+            - "6379:6379"
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-scheduler
+        command: ["php", "artisan", "schedule:work"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - api
+            - pgsql
+            - redis
+
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-queue
+        command: ["php", "artisan", "queue:work", "--tries=3"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - pgsql
 
 volumes:
     pgdata:
