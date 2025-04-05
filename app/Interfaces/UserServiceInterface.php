@@ -23,15 +23,15 @@ interface UserServiceInterface
     /**
      * Retrieve a specific user by ID.
      *
-     * @param string $id The unique identifier of the user.
+     * @param int $id The unique identifier of the user.
      * @return User The user instance.
      */
-    public function find(string $id): User;
+    public function find(int $id): User;
 
     /**
      * Create a new user in the database.
      *
-     * @param array<string, mixed> $data The user data.
+     * @param array $data The user data.
      * @return User The created user instance.
      */
     public function create(array $data): User;
@@ -39,17 +39,17 @@ interface UserServiceInterface
     /**
      * Update an existing user.
      *
-     * @param string $id The unique identifier of the user.
-     * @param array<string, mixed> $data The updated user data.
-     * @return User The updated user instance.
+     * @param int $id The unique identifier of the user.
+     * @param array $data The updated user data.
+     * @return User The update user instance.
      */
-    public function update(string $id, array $data): User;
+    public function update(array $data, int $id): User;
 
     /**
      * Delete a user from the database.
      *
-     * @param string $id The unique identifier of the user.
+     * @param int $id The unique identifier of the user.
      * @return bool|null Returns true if the user was deleted successfully, or null if the deletion failed.
      */
-    public function delete(string $id): ?bool;
+    public function delete(int $id): ?bool;
 }

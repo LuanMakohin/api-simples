@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Models\Transfer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 uses(RefreshDatabase::class);
 
@@ -24,17 +25,37 @@ it('creates a user successfully', function () {
         ->and($user->balance)->toBe(500.00);
 });
 
+it('has fillable attributes: name, email, password, document, user_type, balance', function () {
+    $model = new User();
+
+    expect($model->getFillable())->toMatchArray([
+        'name',
+        'email',
+        'password',
+        'document',
+        'user_type',
+        'balance',
+    ]);
+});
+
 it('checks user transfers relationships', function () {
     $payer = User::factory()->create();
     $payee = User::factory()->create();
 
-    $transfer = Transfer::factory()->create([
-        'user_payer_id' => $payer->id,
-        'user_payee_id' => $payee->id,
+    Transfer::factory()->create([
+        'payer' => $payer->id,
+        'payee' => $payee->id,
     ]);
 
     expect($payer->sentTransfers)->toHaveCount(1)
         ->and($payee->receivedTransfers)->toHaveCount(1);
+});
+
+it('sentTransfers and receivedTransfers return HasMany relationships', function () {
+    $user = new User();
+
+    expect($user->sentTransfers())->toBeInstanceOf(HasMany::class)
+        ->and($user->receivedTransfers())->toBeInstanceOf(HasMany::class);
 });
 
 it('hides password and remember_token from serialization', function () {
@@ -46,4 +67,11 @@ it('hides password and remember_token from serialization', function () {
 
     expect($userArray)->not->toHaveKey('password')
         ->and($userArray)->not->toHaveKey('remember_token');
+});
+
+it('has timestamps after creation', function () {
+    $user = User::factory()->create();
+
+    expect($user->created_at)->not->toBeNull()
+        ->and($user->updated_at)->not->toBeNull();
 });

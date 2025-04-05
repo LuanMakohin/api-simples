@@ -13,7 +13,7 @@ use App\Exceptions\UnauthorizedPayerException;
  * Interface for the Transfer Service.
  *
  * This interface defines the contract for managing transfers,
- * including retrieval, processing, and validation of transfers.
+ * including creation, retrieval, updating, and deletion.
  */
 interface TransferServiceInterface
 {
@@ -42,14 +42,35 @@ interface TransferServiceInterface
     public function find(string $id): Transfer;
 
     /**
-     * Processes a transfer between users.
+     * Create a new transfer between users.
      *
-     * @param array $data The data containing the transfer details, such as value, payee and payer information.
+     * @param array $data Transfer details including value, payer, and payee.
      * @return Transfer The created transfer instance.
      *
-     * @throws SelfTransferException If the transfer is a self-transfer (payer and payee are the same).
-     * @throws InsufficientBalanceException If the payer does not have enough balance.
-     * @throws UnauthorizedPayerException If the payer is not authorized to make transfers.
+     * @throws SelfTransferException If payer and payee are the same.
+     * @throws InsufficientBalanceException If payer lacks sufficient balance.
+     * @throws UnauthorizedPayerException If payer is unauthorized.
      */
-    public function transfer(array $data): Transfer;
+    public function create(array $data): Transfer;
+
+    /**
+     * Update an existing transfer.
+     *
+     * @param string $id The transfer ID.
+     * @param array $data Fields to update.
+     * @return Transfer The updated transfer instance.
+     *
+     * @throws ModelNotFoundException If the transfer is not found.
+     */
+    public function update(array $data, string $id): Transfer;
+
+    /**
+     * Delete a transfer.
+     *
+     * @param string $id The transfer ID.
+     * @return void
+     *
+     * @throws ModelNotFoundException If the transfer is not found.
+     */
+    public function delete(string $id): void;
 }

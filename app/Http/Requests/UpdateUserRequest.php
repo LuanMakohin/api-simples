@@ -21,11 +21,18 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('id') ?? 'NULL';
+
         return [
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $this->user->id . '|max:255',
+            'email' => "sometimes|email|unique:users,email,{$id}|max:255",
             'password' => 'sometimes|string|min:8|confirmed',
-            'document' => 'sometimes|string|unique:users,document,' . $this->user->id . '|regex:/^\d{11}|\d{14}$/',
+            'document' => [
+                'sometimes',
+                'string',
+                "unique:users,document,{$id}",
+                'regex:/^(\d{11}|\d{14})$/',
+            ],
             'user_type' => 'sometimes|in:PF,PJ',
             'balance' => 'sometimes|numeric|min:0',
         ];
