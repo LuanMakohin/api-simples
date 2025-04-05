@@ -58,3 +58,11 @@ Abra o navegador e acesse:
 [http://localhost:8000/docs/api](http://localhost:8000/docs/api)
 
 Essa é a rota onde a documentação da API estará disponível.
+
+## (Opcional) Rodando os testes com Pest
+
+Se quiser rodar os testes da aplicação utilizando Pest, execute o comando abaixo dentro do container:
+
+```bash
+docker exec -it simples-api ./vendor/bin/pest
+```
