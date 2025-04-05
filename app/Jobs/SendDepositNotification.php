@@ -24,7 +24,7 @@ class SendDepositNotification implements ShouldQueue
      *
      * @var Deposit
      */
-    protected $deposit;
+    protected Deposit $deposit;
 
     /**
      * Create a new job instance.
@@ -47,13 +47,41 @@ class SendDepositNotification implements ShouldQueue
      */
     public function handle(DepositNotificationService $notificationService): void
     {
+        Log::info('[DepositNotificationJob] Sending notification for deposit', [
+            'deposit_id' => $this->deposit->id,
+            'status' => $this->deposit->status,
+        ]);
+
         try {
             $notificationService->send([
                 'deposit' => $this->deposit->id,
                 'status' => $this->deposit->status,
             ]);
+
+            Log::info('[DepositNotificationJob] Notification sent successfully', [
+                'deposit_id' => $this->deposit->id,
+            ]);
         } catch (DepositNotificationFailedException $e) {
-            Log::error('Failed to send notification for deposit ' . $this->deposit->id . ': ' . $e->getMessage());
+            Log::error('[DepositNotificationJob] Failed to send notification', [
+                'deposit_id' => $this->deposit->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
+    }
+
+    /**
+     * Handle a job failure.
+     *
+     * @param \Throwable $exception
+     * @return void
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::critical('[DepositNotificationJob] Job failed with unhandled exception', [
+            'deposit_id' => $this->deposit->id,
+            'error' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+        ]);
     }
 }

@@ -44,17 +44,40 @@ services:
             - pgsql
             - redis
 
-    queue:
+    queue-transfers:
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: simples-queue
-        command: ["php", "artisan", "queue:work", "--tries=3"]
+        container_name: simples-queue-transfers
+        command: ["php", "artisan", "queue:work", "redis", "--queue=transfers", "--tries=3"]
         volumes:
             - .:/var/www/html
         depends_on:
             - redis
             - pgsql
 
+    queue-deposits:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-queue-deposits
+        command: ["php", "artisan", "queue:work", "redis", "--queue=deposits", "--tries=3"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - pgsql
+
+    queue-notifications:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: simples-queue-notifications
+        command: ["php", "artisan", "queue:work", "redis", "--queue=notifications", "--tries=3"]
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - redis
+            - pgsql
 volumes:
     pgdata:
