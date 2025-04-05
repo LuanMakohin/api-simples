@@ -12,12 +12,14 @@ Para rodar este projeto, você precisa ter os seguintes softwares instalados na 
 ## Como rodar o projeto
 
 1. Clone este repositório:
-    ```bash git clone https://github.com/LuanMakohin/api-simples.git```
+2. 
+    ```git clone https://github.com/LuanMakohin/api-simples.git```
+   
     ```cd api-simples```
 
 
-3. Suba os containers com o Docker Compose:
+4. Suba os containers com o Docker Compose:
     ```docker-compose up -d```
     
-4. Acesse a aplicação:
+5. Acesse a aplicação:
    http://localhost:8000/docs/api
