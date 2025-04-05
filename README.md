@@ -1,6 +1,7 @@
-# API Simples\n\n
-Este é um projeto de API simples utilizando Laravel, Docker e Docker Compose.\n\n
-## Pré-requisitos\n\nPara rodar este projeto, você precisa ter os seguintes softwares instalados na sua máquina:
+# API Simples
+Este é um projeto de API simples utilizando Laravel, Docker e Docker Compose.
+## Pré-requisitos
+Para rodar este projeto, você precisa ter os seguintes softwares instalados na sua máquina:
  - [Docker](https://www.docker.com/)
  - [Docker Compose](https://docs.docker.com/compose/)
 ## Como rodar o projeto\n\n
