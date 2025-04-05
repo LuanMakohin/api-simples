@@ -16,7 +16,7 @@ Para rodar este projeto, você precisa ter os seguintes softwares instalados na 
     cd api-simples
 
 
-2.Suba os containers com o Docker Compose:
+2. Suba os containers com o Docker Compose:
     docker-compose up -d
     
 3. Acesse a aplicação:
