@@ -57,4 +57,4 @@ Abra o navegador e acesse:
 
 [http://localhost:8000/docs/api](http://localhost:8000/docs/api)
 
-Essa é a rota onde a documentação da API estará disponível (caso a rota `/docs/api` esteja configurada no projeto).
+Essa é a rota onde a documentação da API estará disponível.
