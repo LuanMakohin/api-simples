@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     cron \
     supervisor \
-    && docker-php-ext-install pdo pdo_pgsql zip
+    && docker-php-ext-install pdo pdo_pgsql zip \
+    && pecl install redis && docker-php-ext-enable redis
 
 RUN a2enmod rewrite
 
